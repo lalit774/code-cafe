@@ -10,6 +10,7 @@ function Cart({ cart, dispatch, items }) {
   const [phone, setPhone] = useState('')
   const [zipCode, setZipCode] = useState('')
   const [isEmployeeOfTheMonth, setIsEmployeeOfTheMonth] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const debounceRef = useRef(null)
   const zipRef = useRef(null)
 
@@ -25,14 +26,22 @@ function Cart({ cart, dispatch, items }) {
   const tax = subTotal * taxRate
   const total = subTotal + tax
   const isFormValid = zipCode.length === 5 && name.trim()
-  const handleSubmitOrder = (event) => {
+  const handleSubmitOrder = async (event) => {
     event.preventDefault()
-    axios.post('api/orders', {
-      items: cart,
-      name,
-      phone,
-      zipCode,
-    })
+    setIsSubmitting(true)
+    try {
+      await axios.post('api/orders', {
+        items: cart,
+        name,
+        phone,
+        zipCode,
+      })
+      console.log('Order Submitted')
+    } catch (error) {
+      console.error('Error submitting the order', error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
   const setFormattedPhone = (newNumber) => {
     const digits = newNumber.replace(/\D/g, '')
@@ -139,7 +148,7 @@ function Cart({ cart, dispatch, items }) {
                 ref={zipRef}
               />
             </label>
-            <button type="submit" disabled={!isFormValid}>
+            <button type="submit" disabled={!isFormValid || isSubmitting}>
               Order Now
             </button>
           </form>
