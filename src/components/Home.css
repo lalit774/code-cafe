@@ -1,0 +1,19 @@
+.home-component {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-gap: 32px 10px;
+  padding: 32px 10px;
+}
+.home-component .thumbnail-component:nth-child(3n + 2) div {
+  background-color: #9ba699;
+}
+.home-component .thumbnail-component:nth-child(3n + 3) div {
+  background-color: #3f3f40;
+}
+@media (min-width: 768px) {
+  .home-component {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-gap: 40px 50px;
+    padding: 40px 15px;
+  }
+}
