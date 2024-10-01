@@ -4,6 +4,8 @@ import { useRef, useState } from 'react'
 import './Cart.css'
 import CartRow from './CartRow'
 import ItemType from '../types/item'
+import Alert from './Alert'
+import { CartTypes } from '../reducers/cartReducer'
 
 function Cart({ cart, dispatch, items }) {
   const [name, setName] = useState('')
@@ -11,6 +13,8 @@ function Cart({ cart, dispatch, items }) {
   const [zipCode, setZipCode] = useState('')
   const [isEmployeeOfTheMonth, setIsEmployeeOfTheMonth] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false)
+  const [apiError, setApiError] = useState(false)
   const debounceRef = useRef(null)
   const zipRef = useRef(null)
 
@@ -29,6 +33,7 @@ function Cart({ cart, dispatch, items }) {
   const handleSubmitOrder = async (event) => {
     event.preventDefault()
     setIsSubmitting(true)
+    setApiError('')
     try {
       await axios.post('api/orders', {
         items: cart,
@@ -36,9 +41,11 @@ function Cart({ cart, dispatch, items }) {
         phone,
         zipCode,
       })
-      console.log('Order Submitted')
+      dispatch({ type: CartTypes.EMPTY })
+      setShowSuccessAlert(true)
     } catch (error) {
       console.error('Error submitting the order', error)
+      setApiError(error?.response?.data?.error || 'Unknown Error')
     } finally {
       setIsSubmitting(false)
     }
@@ -78,6 +85,14 @@ function Cart({ cart, dispatch, items }) {
 
   return (
     <div className="cart-component">
+      <Alert visible={showSuccessAlert} type="success">
+        Thank you for your order.
+      </Alert>
+      <Alert visible={!!apiError} type="error">
+        <p>There was an error submitting your order.</p>
+        <p>{apiError}</p>
+        <p>Please try again.</p>
+      </Alert>
       <h2>Your Cart</h2>
       {cart.length === 0 ? (
         <div>Your cart is empty.</div>
